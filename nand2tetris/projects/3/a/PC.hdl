@@ -14,5 +14,16 @@ CHIP PC {
     OUT out[16];
     
     PARTS:
-    //// Replace this comment with your code.
+    Or(a=load, b= reset, out=loadOrResetOut);
+    Or(a=loadOrResetOut, b=inc, out=loadOrResetOrIncOut);
+
+    Register(in=resetMuxOut, load=loadOrResetOrIncOut, out=out, out=recursiveOut1, out=recursiveOut2);
+    Inc16(in=recursiveOut1, out=recursiveOut1Inc);
+    Mux16(a=recursiveOut2, b=recursiveOut1Inc, sel=inc, out=incMuxOut);
+    
+    Mux16(a=incMuxOut, b=in, sel=load, out=loadMuxOut);
+
+    Mux16(a=loadMuxOut, b=false, sel=reset, out=resetMuxOut);
+
+
 }
