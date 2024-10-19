@@ -15,8 +15,21 @@
     D=A
     @i
     M=D
+    @R2
+    M=D
 
+//if((R1-i)>0) do add else goto END
 (LOOP)
+    @i
+    D=M
+    //R1-i
+    @R1
+    D=M-D
+
+    //if !((R1-i)>0) goto END
+    @END
+    D;JLE
+
     @R0
     D=M
 
@@ -25,14 +38,10 @@
 
     @i
     M=M+1
-    D=M
-    //R1-i
-    @R1
-    D=M-D
-
+    
     //goto (LOOP)
     @LOOP
-    D;JLE
+    0;JMP
 
 (END)
     @END
