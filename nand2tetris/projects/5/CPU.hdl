@@ -32,5 +32,45 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-	//// Replace this comment with your code.
+    Not(in=instruction[15], out=isAinstruction);
+	Mux16(a=outALU, b=instruction, sel=isAinstruction, out=inAReg);
+    ARegister(in=inAReg, load=loadAReg, out=outAReg, out[0..14]=addressM); //A_Register
+    Mux16(a=outAReg, b=inM, sel=useAorM, out=inALUam);
+    DRegister(in=outALU, load=destD, out=inALUd); //D_Register
+    ALU(x=inALUd, y=inALUam, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=outM, out=outALU, zr=z, ng=n);
+    PC(in=outAReg, inc=incPC, load=loadPC, reset=reset, out[0..14]=pc);
+    Or8Way(in[0]=instruction[5], in[1]=instruction[4], in[2]=instruction[3], in[3..7]=false, out=checkWriteMIns);
+    Or(a=destA, b=isAinstruction, out=loadAReg);
+
+    And(a=instruction[15], b=instruction[12], out=useAorM);
+    
+    And(a=instruction[15], b=instruction[5], out=destA);
+    And(a=instruction[15], b=instruction[4], out=destD);
+    And(a=instruction[15], b=instruction[3], out=writeM); //destM
+    
+    Or(a=reset, b=loadPC, out=notIncPC);
+    Not(in=notIncPC, out=incPC);
+
+    /* validate loadPC */
+
+    Or(a=z, b=n, out=notPos);
+    Not(in=notPos, out=isCompPos);
+    And(a=isCompPos, b=instruction[0], out=jumpJGT);
+    And(a=instruction[15], b=jumpJGT, out=JGT);
+
+    And(a=z, b=instruction[1], out=jumpJEQ);
+    And(a=instruction[15], b=jumpJEQ, out=JEQ);
+
+    And(a=n, b=instruction[2], out=jumpJLT);
+    And(a=instruction[15], b=jumpJLT, out=JLT);
+
+    Or8Way(in[0]=JGT, in[1]=JEQ, in[2]=JLT, in[3..7]=false, out=loadPC);
+
+    
+
+    
+
+
+
+
 }
